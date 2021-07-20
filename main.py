@@ -20,7 +20,7 @@ class Keyboard_listener():
         self.currently_pressed = set()
         self.is_pressed = False
 
-        listener = keyboard.Listener(on_press=self._on_press)
+        listener = keyboard.Listener(on_press=self._on_press, on_release=self._on_release)
         listener.start()
 
     def _on_press(self, key):
@@ -29,7 +29,17 @@ class Keyboard_listener():
 
         if self.currently_pressed == self.combination:
             self.is_pressed = True
-            Clipboard_to_image(theme, language, path).get_clipboard_text()
+    
+    def _on_release(self, key):
+        try:
+            self.currently_pressed.remove(key)
+
+            if self.is_pressed and len(self.currently_pressed) == 0:
+                self.is_pressed = False
+                Clipboard_to_image(theme, language, path).get_clipboard_text()
+
+        except KeyError:
+            pass
 
 class Clipboard_to_image():
     def __init__(self, theme, language, path):
@@ -37,10 +47,9 @@ class Clipboard_to_image():
         self.language = language
         self.path = path
 
-    def add_clipboard(self, name):
-        print("clipboard")
+    def add_clipboard(self, path):
         # grabbing image from path of image
-        image = Image.open(f"{self.path}{str(name)}.png")
+        image = Image.open(path)
     
         output = BytesIO()
         image.convert("RGB").save(output, "BMP")
@@ -55,11 +64,9 @@ class Clipboard_to_image():
 
     def get_clipboard_text(self):
         # get clipboard text
-        print("text")
         self.send_request(pyperclip.paste())
     
     def send_request(self, text):
-        print("request")
         # making requests
         url_carbonara = "https://carbonara.vercel.app/api/cook"
         headers = {"Content-Type": "application/json"}
@@ -70,12 +77,13 @@ class Clipboard_to_image():
         name = name.replace(".","-")
         name = name.replace(" ","_")
         name = name.replace(":","-")
+        path = f"{self.path}/{str(name)}.png"
         # sending request
         resp = requests.post(url_carbonara, headers=headers, json=data)
 
         # saving file
-        open(f"{self.path}{str(name)}.png", 'wb').write(resp.content)
-        self.add_clipboard(name)
+        open(path, 'wb').write(resp.content)
+        self.add_clipboard(path)
 
 if __name__ == '__main__':
     text_to_image = Clipboard_to_image(theme, language, path)
