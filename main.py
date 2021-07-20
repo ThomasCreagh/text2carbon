@@ -5,13 +5,52 @@ import datetime
 from io import BytesIO
 import win32clipboard
 from PIL import Image
+
+import winrt.windows.ui.notifications as notifications
+import winrt.windows.data.xml.dom as dom
+
 from pynput import keyboard
+
+app = '{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe'
+
 
 # variables
 keybind = {keyboard.Key.shift, keyboard.Key.cmd, keyboard.KeyCode.from_char('C')}
 theme = "panda"
 language = "auto"
-path = "C:/Users/Tom/OneDrive/Documents/Illustrator/PNG/carbon"
+path = "C:/Users/James M/Documents/Coding/text2carbon/images"
+
+class WinNotifier():
+    def doit(self, name):
+        #create notifier
+        nManager = notifications.ToastNotificationManager
+        notifier = nManager.create_toast_notifier(app)
+
+        #define your notification as string
+        tString = f"""
+        <toast>
+            <visual>
+            <binding template='ToastGeneric'>
+                <text>Text Snippet saved to clipboard.</text>
+                <text>Your clipboard was uploaded to Carbon and is in your clipboard and is saved to your file path.</text>
+                <image placement="Inline" hint-crop="square" src="{name}"/>
+            </binding>
+            </visual>
+            <actions>
+            <action
+                content="Dismiss"
+                arguments="action=dismiss"/>
+            </actions>        
+        </toast>
+        """
+
+        #convert notification to an XmlDocument
+        xDoc = dom.XmlDocument()
+        xDoc.load_xml(tString)
+
+        #display notification
+        notifier.show(notifications.ToastNotification(xDoc))
+
 
 # This class listens to your keyboard and checks if you press the keybind
 class Keyboard_listener():
@@ -70,6 +109,8 @@ class Clipboard_to_image():
         win32clipboard.SetClipboardData(win32clipboard.CF_DIB, data)    
         win32clipboard.CloseClipboard()
 
+        WinNotifier().doit(path)
+
     # Getting clipboard data
     def get_clipboard_text(self):
         # get clipboard text
@@ -94,3 +135,4 @@ class Clipboard_to_image():
         # saving file
         open(path, 'wb').write(resp.content)
         self.add_clipboard(path)
+
