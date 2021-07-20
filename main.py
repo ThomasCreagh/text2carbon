@@ -7,22 +7,41 @@ import datetime
 from io import BytesIO
 import win32clipboard
 from PIL import Image
+from pynput import keyboard
 
 # variables
-keybind = "shift+windows+c"
+keybind = {keyboard.Key.shift, keyboard.Key.cmd, keyboard.KeyCode.from_char('C')}
 theme = "panda"
 language = "auto"
 path = "C:/Users/Tom/OneDrive/Documents/Illustrator/PNG/carbon"
 
 # main class
-class Main():
+class Keyboard_listener():
+    def __init__(self, keys):
+        self.combination = keys
+        self.currently_pressed = set()
+        self.is_pressed = False
 
-    def __init__(self):
-        pass
-    
+        listener = keyboard.Listener(on_press=self._on_press)
+        listener.start()
+
+    def _on_press(self, key):
+        if key in self.combination:
+            self.currently_pressed.add(key)
+
+        if self.currently_pressed == self.combination:
+            self.is_pressed = True
+            Clipboard_to_image(theme, language, path).get_clipboard_text()
+
+class Clipboard_to_image():
+    def __init__(self, theme, language, path):
+        theme = theme
+        language = language
+        path = path
+
     def add_clipboard(self, name):
         # grabbing image from path of image
-        image = Image.open(f"{path}{name}.png")
+        image = Image.open(f"{self.path}{name}.png")
     
         output = BytesIO()
         image.convert("RGB").save(output, "BMP")
@@ -37,7 +56,7 @@ class Main():
 
     def get_clipboard_text(self):
         # get clipboard text
-        return pyperclip.paste()
+        self.send_request(pyperclip.paste())
     
     def send_request(self, text):
         # making requests
@@ -54,12 +73,10 @@ class Main():
         resp = requests.post(url_carbonara, headers=headers, json=data)
 
         # saving file
-        open(f"{path}{str(name)}.png", 'wb').write(resp.content)
-        return name
+        open(f"{self.path}{str(name)}.png", 'wb').write(resp.content)
+        self.add_clipboard(name)
 
-    def main(self):
-        # loops program
-        while True:
-            if keyboard.is_pressed(keybind):    
-                self.add_clipboard(self.send_request(self.get_clipboard_text()))
-                time.sleep(2)
+if __name__ == '__main__':
+    text_to_image = Clipboard_to_image(theme, language, path)
+    key_listener = Keyboard_listener(keybind)
+    input()
