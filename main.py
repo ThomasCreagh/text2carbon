@@ -18,7 +18,7 @@ app = '{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershe
 keybind = {keyboard.Key.shift, keyboard.Key.cmd, keyboard.KeyCode.from_char('C')}
 theme = "panda"
 language = "auto"
-path = "C:/Users/James M/Documents/Coding/text2carbon/images"
+path = "C:/Users/Tom/OneDrive/Documents/Illustrator/PNG/carbon"
 
 class WinNotifier():
     def doit(self, name):
@@ -93,24 +93,6 @@ class Clipboard_to_image():
         self.language = language
         self.path = path
 
-    # Copying the saved image to clipboard
-    def add_clipboard(self, path):
-        # grabbing image from path of image
-        image = Image.open(path)
-    
-        output = BytesIO()
-        image.convert("RGB").save(output, "BMP")
-        data = output.getvalue()[14:]
-        output.close()  
-        
-        # copying image to clipboard
-        win32clipboard.OpenClipboard()
-        win32clipboard.EmptyClipboard()
-        win32clipboard.SetClipboardData(win32clipboard.CF_DIB, data)    
-        win32clipboard.CloseClipboard()
-
-        WinNotifier().doit(path)
-
     # Getting clipboard data
     def get_clipboard_text(self):
         # get clipboard text
@@ -135,4 +117,24 @@ class Clipboard_to_image():
         # saving file
         open(path, 'wb').write(resp.content)
         self.add_clipboard(path)
+
+    # Copying the saved image to clipboard
+    def add_clipboard(self, path):
+        # grabbing image from path of image
+        image = Image.open(path)
+    
+        output = BytesIO()
+        image.convert("RGB").save(output, "BMP")
+        data = output.getvalue()[14:]
+        output.close()  
+        
+        # copying image to clipboard
+        win32clipboard.OpenClipboard()
+        win32clipboard.EmptyClipboard()
+        win32clipboard.SetClipboardData(win32clipboard.CF_DIB, data)    
+        win32clipboard.CloseClipboard()
+
+        WinNotifier().doit(path)
+
+
 

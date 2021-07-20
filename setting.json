@@ -1,0 +1,8 @@
+{
+    "settings": {
+        "keybind" : "{keyboard.Key.shift, keyboard.Key.cmd, keyboard.KeyCode.from_char('C')}",
+        "theme" : "panda",
+        "language" : "auto",
+        "path" : "C:/Users/Tom/OneDrive/Documents/Illustrator/PNG/carbon"
+    }
+}
