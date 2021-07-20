@@ -1,8 +1,6 @@
-from main import Main 
+import main
 
-def start():
-    print("text2carbon - Developed by untab")
-    Main().main()
-
-if __name__ == "__main__":
-    start()
+if __name__ == '__main__':
+    text_to_image = main.Clipboard_to_image(main.theme, main.language, main.path)
+    key_listener = main.Keyboard_listener(main.keybind)
+    input()

@@ -1,6 +1,4 @@
 # imports
-import keyboard
-import time
 import pyperclip
 import requests
 import datetime
@@ -35,13 +33,14 @@ class Keyboard_listener():
 
 class Clipboard_to_image():
     def __init__(self, theme, language, path):
-        theme = theme
-        language = language
-        path = path
+        self.theme = theme
+        self.language = language
+        self.path = path
 
     def add_clipboard(self, name):
+        print("clipboard")
         # grabbing image from path of image
-        image = Image.open(f"{self.path}{name}.png")
+        image = Image.open(f"{self.path}{str(name)}.png")
     
         output = BytesIO()
         image.convert("RGB").save(output, "BMP")
@@ -51,14 +50,16 @@ class Clipboard_to_image():
         # copying image to clipboard
         win32clipboard.OpenClipboard()
         win32clipboard.EmptyClipboard()
-        win32clipboard.SetClipboardData(win32clipboard.CF_DIB, data)
+        win32clipboard.SetClipboardData(win32clipboard.CF_DIB, data)    
         win32clipboard.CloseClipboard()
 
     def get_clipboard_text(self):
         # get clipboard text
+        print("text")
         self.send_request(pyperclip.paste())
     
     def send_request(self, text):
+        print("request")
         # making requests
         url_carbonara = "https://carbonara.vercel.app/api/cook"
         headers = {"Content-Type": "application/json"}
